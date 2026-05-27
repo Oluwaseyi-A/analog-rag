@@ -87,6 +87,8 @@ def graph_similarity_search(
         return [{"error": f"circuit_id {circuit_id!r} not found in graph collection"}]
 
     ref_emb = ref["embedding"]
+    if ref_emb is None:
+        return [{"error": f"No graph embedding stored for {circuit_id!r} — run ingestion first"}]
     results = vs.search_graphs(query_embedding=ref_emb, k=k + 1)
     # Exclude self
     results = [r for r in results if r["circuit_id"] != circuit_id][:k]
