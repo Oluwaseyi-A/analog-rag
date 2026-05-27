@@ -30,9 +30,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Ensure 'python' resolves to python3
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
-# Upgrade pip
-RUN python3 -m pip install --upgrade pip --break-system-packages
-
 # Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
