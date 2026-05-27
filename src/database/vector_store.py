@@ -125,21 +125,30 @@ class VectorStore:
 
     def get_netlist(self, circuit_id: str) -> Optional[dict]:
         res = self._netlists.get(ids=[circuit_id], include=["documents", "metadatas"])
-        if not res["ids"]:
+        ids = res.get("ids") or []
+        if not ids:
             return None
-        return {"id": circuit_id, "document": res["documents"][0], "metadata": res["metadatas"][0]}
+        docs = res.get("documents") or [None]
+        metas = res.get("metadatas") or [{}]
+        return {"id": circuit_id, "document": docs[0], "metadata": metas[0]}
 
     def get_graph(self, circuit_id: str) -> Optional[dict]:
         res = self._graphs.get(ids=[circuit_id], include=["metadatas", "embeddings"])
-        if not res["ids"]:
+        ids = res.get("ids") or []
+        if not ids:
             return None
-        return {"id": circuit_id, "metadata": res["metadatas"][0], "embedding": res["embeddings"][0]}
+        metas = res.get("metadatas") or [{}]
+        embs = res.get("embeddings") or [None]
+        return {"id": circuit_id, "metadata": metas[0], "embedding": embs[0]}
 
     def get_behavior(self, circuit_id: str) -> Optional[dict]:
         res = self._behavior.get(ids=[circuit_id], include=["metadatas", "embeddings"])
-        if not res["ids"]:
+        ids = res.get("ids") or []
+        if not ids:
             return None
-        return {"id": circuit_id, "metadata": res["metadatas"][0], "embedding": res["embeddings"][0]}
+        metas = res.get("metadatas") or [{}]
+        embs = res.get("embeddings") or [None]
+        return {"id": circuit_id, "metadata": metas[0], "embedding": embs[0]}
 
     def count_netlists(self) -> int:
         return self._netlists.count()

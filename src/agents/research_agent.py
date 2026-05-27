@@ -164,6 +164,8 @@ def run_research_agent(
             tool_choice="auto",
             temperature=0.0,
         )
+        if not resp or not resp.choices:
+            return {"circuits": [], "retrieval_summary": "LLM returned empty response.", "tool_calls_used": tool_calls_used}
         msg = resp.choices[0].message
 
         if not msg.tool_calls:

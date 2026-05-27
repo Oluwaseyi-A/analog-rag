@@ -226,10 +226,14 @@ if prompt := st.chat_input("Ask about analog circuits or paste a SPICE netlist..
                 st.caption(f"Responded in {elapsed:.1f}s · {result.get('tool_calls_used', 0)} tool calls")
                 st.session_state.messages.append({"role": "assistant", "content": answer})
             except Exception as e:
-                err_msg = f"Error: {e}"
-                st.error(err_msg)
-                st.session_state.messages.append({"role": "assistant", "content": err_msg})
+                import traceback
+                tb = traceback.format_exc()
                 log.exception("Superagent error")
+                st.error(f"Error: {e}")
+                st.code(tb, language="text")
+                st.session_state.messages.append({"role": "assistant", "content": f"Error: {e}"})
+
+st.markdown("<p style='text-align:center; color:grey; font-size:0.8rem;'>© 2026 Oluwaseyi Akinwande</p>", unsafe_allow_html=True)
 
 # ── Results panel ─────────────────────────────────────────────────────────────
 

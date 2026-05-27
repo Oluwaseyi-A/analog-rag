@@ -115,6 +115,8 @@ def run_superagent(
             tool_choice="auto",
             temperature=0.1,
         )
+        if not resp or not resp.choices:
+            return {"answer": "LLM returned empty response.", "citations": [], "tool_calls_used": tool_calls_used, "raw_agent_results": raw_results}
         msg = resp.choices[0].message
 
         if not msg.tool_calls:
