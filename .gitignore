@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.local
+
+# Data (mounted at runtime)
+data/
+*.csv
+*.dat
+*.sp
+*.cir
+
+# Vector store / DB artifacts
+chroma_db/
+*.db
+*.sqlite
+
+# Model weights / embeddings cache
+*.pt
+*.pth
+*.pkl
+*.npy
+*.bin
+embeddings_cache/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Docker
+.docker/

@@ -1,0 +1,45 @@
+services:
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mcp-server:
+    build: .
+    command: python3 -m src.mcp.server
+    env_file: .env
+    volumes:
+      - /mnt/c/Users/seyil/OneDrive/Documents/LLM/AnalogGym:/data:ro
+      - ./src:/app/src
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+
+  app:
+    build: .
+    env_file: .env
+    volumes:
+      - /mnt/c/Users/seyil/OneDrive/Documents/LLM/AnalogGym:/data:ro
+      - ./src:/app/src
+    depends_on:
+      chromadb:
+        condition: service_healthy
+      mcp-server:
+        condition: service_started
+    ports:
+      - "8501:8501"
+
+volumes:
+  chroma_data:
