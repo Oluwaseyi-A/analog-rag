@@ -186,7 +186,10 @@ def run_research_agent(
                 args = json.loads(tc.function.arguments)
             except Exception:
                 args = {}
-            tool_result = _dispatch_tool(fn_name, args)
+            try:
+                tool_result = _dispatch_tool(fn_name, args)
+            except Exception as e:
+                tool_result = {"error": f"Tool {fn_name} failed: {e}"}
             all_tool_results.append({"tool": fn_name, "args": args, "result": tool_result})
             messages.append({
                 "role": "tool",

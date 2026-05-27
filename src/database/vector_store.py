@@ -163,16 +163,26 @@ class VectorStore:
 
 
 def _unpack_results(results: dict, k: int) -> list[dict]:
+    # ChromaDB returns None (not a missing key) for fields not in the result set —
+    # so we must guard against None explicitly, not just use dict.get defaults.
+    ids_outer = results.get("ids") or [[]]
+    ids = ids_outer[0] if ids_outer else []
+
+    docs_outer = results.get("documents") or [[None] * len(ids)]
+    docs = docs_outer[0] if docs_outer else [None] * len(ids)
+
+    metas_outer = results.get("metadatas") or [[{}] * len(ids)]
+    metas = metas_outer[0] if metas_outer else [{}] * len(ids)
+
+    dists_outer = results.get("distances") or [[0.0] * len(ids)]
+    dists = dists_outer[0] if dists_outer else [0.0] * len(ids)
+
     out = []
-    ids = results.get("ids", [[]])[0]
-    docs = results.get("documents", [[None] * len(ids)])[0]
-    metas = results.get("metadatas", [[{}] * len(ids)])[0]
-    dists = results.get("distances", [[0.0] * len(ids)])[0]
     for i, cid in enumerate(ids):
         out.append({
             "circuit_id": cid,
-            "score": 1.0 - (dists[i] if dists else 0.0),
-            "document": docs[i] if docs else None,
-            "metadata": metas[i] if metas else {},
+            "score": 1.0 - (dists[i] if i < len(dists) else 0.0),
+            "document": docs[i] if i < len(docs) else None,
+            "metadata": metas[i] if i < len(metas) else {},
         })
     return out

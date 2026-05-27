@@ -136,7 +136,10 @@ def run_superagent(
                 args = json.loads(tc.function.arguments)
             except Exception:
                 args = {}
-            result = _dispatch_superagent_tool(fn_name, args)
+            try:
+                result = _dispatch_superagent_tool(fn_name, args)
+            except Exception as e:
+                result = {"error": f"Agent {fn_name} failed: {e}"}
             raw_results.append({"agent": fn_name, "args": args, "result": result})
             messages.append({
                 "role": "tool",
