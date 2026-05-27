@@ -19,9 +19,16 @@ services:
     build: .
     command: python3 -m src.mcp.server
     env_file: .env
+    environment:
+      - DB_PATH=/app/data/measurements.db
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - PDK_ROOT=/data/PDK
+      - RAG_DATA_PATH=/data/rag_data
     volumes:
       - /mnt/c/Users/seyil/OneDrive/Documents/LLM/AnalogGym:/data:ro
       - ./src:/app/src
+      - app_data:/app/data
     depends_on:
       chromadb:
         condition: service_healthy
@@ -30,10 +37,18 @@ services:
 
   app:
     build: .
+    command: streamlit run src/ui/app.py --server.port=8501 --server.address=0.0.0.0
     env_file: .env
+    environment:
+      - DB_PATH=/app/data/measurements.db
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - PDK_ROOT=/data/PDK
+      - RAG_DATA_PATH=/data/rag_data
     volumes:
       - /mnt/c/Users/seyil/OneDrive/Documents/LLM/AnalogGym:/data:ro
       - ./src:/app/src
+      - app_data:/app/data
     depends_on:
       chromadb:
         condition: service_healthy
@@ -42,5 +57,58 @@ services:
     ports:
       - "8501:8501"
 
+  ingest:
+    build: .
+    command: python3 -m src.ingestion.ingest --config configs/ingest_config.json
+    env_file: .env
+    environment:
+      - DB_PATH=/app/data/measurements.db
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - PDK_ROOT=/data/PDK
+    volumes:
+      - /mnt/c/Users/seyil/OneDrive/Documents/LLM/AnalogGym:/data:ro
+      - ./src:/app/src
+      - ./configs:/app/configs
+      - app_data:/app/data
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    profiles:
+      - ingest
+
+  gnn-train:
+    build: .
+    command: python3 -m src.ingestion.gnn_train --rag-data /data/rag_data --epochs 50 --output /app/data/gin_weights.pt
+    env_file: .env
+    environment:
+      - RAG_DATA_PATH=/data/rag_data
+    volumes:
+      - /mnt/c/Users/seyil/OneDrive/Documents/LLM/AnalogGym:/data:ro
+      - ./src:/app/src
+      - app_data:/app/data
+    profiles:
+      - train
+
+  eval:
+    build: .
+    command: python3 -m src.eval.success_criteria --rag-data /data/rag_data --output /app/data/eval_report.json
+    env_file: .env
+    environment:
+      - DB_PATH=/app/data/measurements.db
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - RAG_DATA_PATH=/data/rag_data
+    volumes:
+      - /mnt/c/Users/seyil/OneDrive/Documents/LLM/AnalogGym:/data:ro
+      - ./src:/app/src
+      - app_data:/app/data
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    profiles:
+      - eval
+
 volumes:
   chroma_data:
+  app_data:
