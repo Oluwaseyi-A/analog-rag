@@ -44,6 +44,8 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+*:Zone.Identifier
+Encoding_LLMs_for_Analog_Circuit_Netlist.md
 
 # IDE
 .vscode/
